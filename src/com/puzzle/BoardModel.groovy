@@ -1,5 +1,6 @@
 package com.puzzle
 
+import com.puzzle.agent.Index
 import com.puzzle.initializer.InitializerFactory
 import com.puzzle.initializer.InitializerType
 
@@ -7,7 +8,7 @@ class BoardModel {
     static def SIZE = 4
 
     private def boardRepresentation = new Integer[SIZE][SIZE]
-    private def nullValueIndex = new Integer[2]
+    private Integer emptyCellIndex
 
     BoardModel(){
 
@@ -19,8 +20,7 @@ class BoardModel {
             for (int j = 0; j < SIZE; j++) {
                 def value = initializer.getNextValue()
                 if (value == 0){
-                    nullValueIndex[0] = i
-                    nullValueIndex[1] = j
+                    emptyCellIndex = new Index(i, j)
                 }
                 boardRepresentation[i][j] = value
             }
@@ -31,4 +31,7 @@ class BoardModel {
         return boardRepresentation
     }
 
+    def getEmptyCellIndex() {
+        return emptyCellIndex
+    }
 }

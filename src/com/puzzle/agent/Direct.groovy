@@ -1,4 +1,4 @@
-package com.puzzle
+package com.puzzle.agent
 
 enum Direct {
     UP,

@@ -1,5 +1,6 @@
 package com.puzzle
 
+import com.puzzle.agent.Agent
 import com.puzzle.initializer.InitializerType
 import javafx.fxml.FXML
 import javafx.scene.control.Button
@@ -14,8 +15,8 @@ class Controller {
 
     @FXML
     void initialize() {
-        agent = new Agent(gridPane)
-        fillBoard()
+        agent = new Agent(gridPane, fillBoard())
+//        agent
     }
 
     def fillBoard() {
@@ -31,5 +32,6 @@ class Controller {
                 gridPane.add(button, i, j)
             }
         }
+        boardModel
     }
 }
