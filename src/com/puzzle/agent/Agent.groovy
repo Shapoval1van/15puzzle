@@ -1,60 +1,106 @@
 package com.puzzle.agent
 
 import com.puzzle.BoardModel
-import javafx.scene.layout.GridPane
+import com.puzzle.astar.State
 
 class Agent {
+    private final terminateState = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 0]]
 
-    private def panel
-    private def boardModel
-    private def emptyCellIndex
-
-    Agent(GridPane panel, BoardModel boardModel) {
-        this.panel = panel
-        this.boardModel = boardModel
-        emptyCellIndex = boardModel.getEmpyCellIndex()
-    }
-
-    def move(Direct direct) throws DirectNotAllowedException {
-        if (!directAllowed(direct)) {
+    def move(Direct direct, State state) throws DirectNotAllowedException {
+        if (getDirectBlockedList(state).contains(direct)) {
             throw new DirectNotAllowedException("Direct: $direct not alowed")
         }
-        def boardRepresentation = boardModel.getBoardRepresentation()
-        def oldEmptyCellIndex = emptyCellIndex.clone()
-        recalculateEmptyCellIndex(direct)
-        boardRepresentation[oldEmptyCellIndex.x][oldEmptyCellIndex.y] =
-                boardRepresentation[emptyCellIndex.x][emptyCellIndex.y]
-        boardRepresentation[emptyCellIndex.x][emptyCellIndex.y] = 0
+        swapEmptyCell(direct, state)
     }
 
-    def directAllowed(Direct direct) {
-        def emptyCellIndex = boardModel.getEmpyCellIndex()
+    private def getDirectBlockedList(State state) {
+        def boardModel = state.getBoardModel()
         def blockedDirectsList = []
-        if (emptyCellIndex.x == 0)
+        def emptyCellIndex = boardModel.getEmptyCellIndex()
+        if (emptyCellIndex.col == 0)
             blockedDirectsList << Direct.LEFT
-        else if (emptyCellIndex.x == (BoardModel.SIZE - 1))
+        else if (emptyCellIndex.col == (BoardModel.SIZE - 1))
             blockedDirectsList << Direct.RIGHT
-        if (emptyCellIndex.y == 0)
+        if (emptyCellIndex.row == 0)
             blockedDirectsList << Direct.DOWN
-        else if (emptyCellIndex.y == (BoardModel.SIZE - 1))
+        else if (emptyCellIndex.row == (BoardModel.SIZE - 1))
             blockedDirectsList << Direct.UP
-        blockedDirectsList.contains(direct)
+        blockedDirectsList
     }
 
-    def recalculateEmptyCellIndex(Direct direct) {
-        switch (direct){
+    private def recalculateEmptyCellIndex(Direct direct, State state) {
+        def boardModel = state.getBoardModel()
+        def emptyCellIndex = boardModel.getEmptyCellIndex()
+        switch (direct) {
             case Direct.UP:
-                ++emptyCellIndex.y
+                ++emptyCellIndex.row
                 break
             case Direct.DOWN:
-                --emptyCellIndex.y
+                --emptyCellIndex.row
                 break
             case Direct.LEFT:
-                --emptyCellIndex.x
+                --emptyCellIndex.col
                 break
             case Direct.RIGHT:
-                --emptyCellIndex.x
+                ++emptyCellIndex.col
                 break
         }
+    }
+
+    private def swapEmptyCell(Direct direct, State state) {
+        def newState = state.clone()
+        def boardModel = newState.getBoardModel()
+        def emptyCellIndex = boardModel.getEmptyCellIndex()
+        def boardRepresentation = boardModel.getBoardRepresentation()
+        def oldEmptyCellIndex = emptyCellIndex.clone()
+        recalculateEmptyCellIndex(direct, newState)
+        boardRepresentation[oldEmptyCellIndex.row][oldEmptyCellIndex.col] = boardRepresentation[emptyCellIndex.row][emptyCellIndex.col]
+        boardRepresentation[emptyCellIndex.row][emptyCellIndex.col] = 0
+        newState
+    }
+
+    def getAllowedDirectList(State state) {
+        def allowedDirectList = []
+        def directBlockedList = getDirectBlockedList(state)
+        Direct.toList().each {
+            if (!directBlockedList.contains(it)) {
+                allowedDirectList << it
+            }
+        }
+        allowedDirectList
+    }
+
+    def getNeighbours(State state) {
+        def neighbours = []
+        for (Direct d : getAllowedDirectList(state)) {
+            State neighbour = move(d, state)
+            neighbour.setH(getH(state))
+            neighbours << neighbour
+        }
+        neighbours
+    }
+
+    def getH(State currState) {
+        def boardRepresentation = currState.getBoardModel().getBoardRepresentation()
+        def result = 0
+        for (int i = 0; i < BoardModel.SIZE; i++) {
+            for (int j = 0; j < BoardModel.SIZE; j++) {
+                if (boardRepresentation[i][j] != terminateState[i][j]) {
+                    result++
+                }
+            }
+        }
+        result
+    }
+
+    def isTerminal(State state) {
+        for (int i = 0; i < BoardModel.SIZE; i++) {
+            for (int j = 0; j < BoardModel.SIZE; j++) {
+                if(state.getBoardModel().getBoardRepresentation()[i][j] != terminateState[i][j]){
+                    return false
+                }
+            }
+        }
+        return true
     }
 }
