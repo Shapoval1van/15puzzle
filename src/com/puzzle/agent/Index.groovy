@@ -10,7 +10,7 @@ class Index {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
+    public Index clone() {
         return new Index(col, row)
     }
 

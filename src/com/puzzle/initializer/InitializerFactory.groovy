@@ -4,7 +4,7 @@ import com.puzzle.initializer.impl.RandomInitializer
 
 class InitializerFactory {
 
-    def getInitializer(InitializerType type) {
+    Initializer getInitializer(InitializerType type) {
         switch (InitializerType.Random){
             case 1:
                 return new RandomInitializer()
