@@ -1,22 +1,23 @@
 package com.puzzle.agent;
 
 import com.puzzle.BoardModel;
-import com.puzzle.astar.State;
+import com.puzzle.algorithm.State;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.puzzle.agent.Direct.*;
+import static com.puzzle.agent.Direct.LEFT;
+import static com.puzzle.agent.Direct.RIGHT;
 import static com.puzzle.agent.Direct.DOWN;
 import static com.puzzle.agent.Direct.UP;
 
 public class Agent {
-    private final Integer[][] terminateState = {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}, {13, 14, 15, 0}};
+    private final Integer[][] TERMINAL_STATE = {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}, {13, 14, 15, 0}};
 
     public State move(Direct direct, State state) throws DirectNotAllowedException {
         if (getDirectBlockedList(state).contains(direct)) {
-            throw new DirectNotAllowedException("Direct: $direct not alowed");
+            throw new DirectNotAllowedException("Direct: " +direct+" not allowed");
         }
         return swapEmptyCell(direct, state);
     }
@@ -55,15 +56,14 @@ public class Agent {
         }
     }
 
-    private State swapEmptyCell(Direct direct, State state) {
+    private State swapEmptyCell(Direct direct, State state) { //we should return new State object respectively with method getNeighbours() realization
         State newState = state.clone();
-        BoardModel boardModel = newState.getBoardModel();
-        Index emptyCellIndex = boardModel.getEmptyCellIndex();
-        Integer[][] boardRepresentation = boardModel.getBoardRepresentation();
+        Index emptyCellIndex = newState.getBoardModel().getEmptyCellIndex();
+        Integer[][] boardRepresentation = newState.getBoardModel().getBoardRepresentation();
         Index oldEmptyCellIndex = emptyCellIndex.clone();
         recalculateEmptyCellIndex(direct, newState);
-        boardRepresentation[oldEmptyCellIndex.getRow()][oldEmptyCellIndex.getCol()] = boardRepresentation[emptyCellIndex.getRow()][emptyCellIndex.getCol()];
-        boardRepresentation[emptyCellIndex.getRow()][emptyCellIndex.getCol()] = 0;
+        boardRepresentation[oldEmptyCellIndex.getCol()][oldEmptyCellIndex.getRow()] = boardRepresentation[emptyCellIndex.getCol()][emptyCellIndex.getRow()];
+        boardRepresentation[emptyCellIndex.getCol()][emptyCellIndex.getRow()] = 0;
         return newState;
     }
 
@@ -83,37 +83,25 @@ public class Agent {
         try {
             for (Direct d : getAllowedDirectList(state)) {
                 State neighbour = move(d, state);
-                neighbour.setH(getH(state));
                 neighbours.add(neighbour);
             }
         }catch (DirectNotAllowedException e){
-            System.out.println(e);
+            System.out.println(e.getMessage());
         }
         return neighbours;
     }
 
-    public Integer getH(State currState) {
-        Integer[][] boardRepresentation = currState.getBoardModel().getBoardRepresentation();
-        int result = 0;
-        for (int i = 0; i < BoardModel.SIZE; i++) {
-            for (int j = 0; j < BoardModel.SIZE; j++) {
-                if (boardRepresentation[i][j] != terminateState[i][j]) {
-                    result++;
-                }
-            }
-        }
-        return result;
+    public boolean isTerminal(State state) {
+       return Arrays.deepEquals(state.getBoardModel().getBoardRepresentation(), TERMINAL_STATE);
     }
 
-    public boolean isTerminal(State state) {
-       return Arrays.deepEquals(state.getBoardModel().getBoardRepresentation(),terminateState);
-//        for (int i = 0; i < BoardModel.SIZE; i++) {
-//            for (int j = 0; j < BoardModel.SIZE; j++) {
-//                if (state.getBoardModel().getBoardRepresentation()[i][j] != terminateState[i][j]) {
-//                    return false;
-//                }
-//            }
-//        }
-//        return true;
+    public Integer getDistance(State a, State b) {
+        State c = b;
+        int res = 0;
+        while ((c != null) && (!c.equals(a))) {
+            c = c.getParent();
+            res++;
+        }
+        return res;
     }
 }

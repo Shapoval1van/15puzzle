@@ -1,4 +1,4 @@
-package com.puzzle.astar;
+package com.puzzle.algorithm;
 
 import com.puzzle.BoardModel;
 
@@ -10,7 +10,7 @@ public class State {
   private int g;
   private int h;
 
-  State(BoardModel boardModel) {
+  public State(BoardModel boardModel) {
     this.boardModel = boardModel;
   }
 

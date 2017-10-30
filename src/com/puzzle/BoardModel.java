@@ -11,24 +11,23 @@ public class BoardModel {
     private Integer[][] boardRepresentation = new Integer[SIZE][SIZE];
     private Index emptyCellIndex;
 
-    BoardModel(){
+    public BoardModel(){
 
     }
 
-    BoardModel(Integer[][] boardRepresentation, Index emptyCellIndex) {
+    public BoardModel(Integer[][] boardRepresentation, Index emptyCellIndex) {
         this.boardRepresentation = boardRepresentation;
         this.emptyCellIndex = emptyCellIndex;
     }
 
     void init(InitializerType type){
         Initializer initializer = new InitializerFactory().getInitializer(type);
+        boardRepresentation = initializer.getInitialState();
         for (int i = 0; i < SIZE ; i++) {
             for (int j = 0; j < SIZE; j++) {
-                Integer value = (Integer) initializer.getNextValue();
-                if (value == 0){
+                if (boardRepresentation[j][i] == 0){
                      emptyCellIndex = new Index(j, i);
                 }
-                boardRepresentation[i][j] = value;
             }
         }
     }
