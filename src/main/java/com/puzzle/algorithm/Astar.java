@@ -5,7 +5,6 @@ import com.puzzle.agent.Agent;
 import com.puzzle.agent.Heuristic.Heuristic;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -17,7 +16,7 @@ public class Astar {
     private boolean isFinished = false;
     private Agent agent;
 
-    Astar(Agent agent) {
+    public Astar(Agent agent) {
         this.agent = agent;
     }
 
@@ -56,7 +55,16 @@ public class Astar {
     }
 
     State getStateWithMinF() {
-        return opened.stream().min(Comparator.comparing(State::getF, (f, f1) -> f < f1 ? -1 : 1)).get();
+        State res = null;
+        int min = Integer.MAX_VALUE;
+        for (State state : opened) {
+            if (state.getF() < min) {
+                min = state.getF();
+                res = state;
+            }
+        }
+        return res;
+//        return opened.stream().min(Comparator.comparing(State::getF, (f, f1) -> f < f1 ? -1 : 1)).get();
     }
 
     Stack<BoardModel> createPath(State finalState) {

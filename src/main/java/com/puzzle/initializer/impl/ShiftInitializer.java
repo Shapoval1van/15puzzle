@@ -13,7 +13,7 @@ import java.util.Random;
 
 public class ShiftInitializer implements Initializer{
     private final Integer[][] TERMINAL_STATE = {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}, {13, 14, 15, 0}};
-    private final int SHIFT_COUNT = 150;
+    private final int SHIFT_COUNT = 40;
 
     public Integer[][] mixTerminalState() {
         Agent agent = new Agent();
